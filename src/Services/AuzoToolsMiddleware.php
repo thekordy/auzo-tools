@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class AuzoToolsMiddleware
 {
-
     /**
-     * Check user authorization
+     * Check user authorization.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure $next
-     * @param string $ability
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure                 $next
+     * @param string                   $ability
+     *
      * @return mixed
      */
     public function handle(Request $request, Closure $next, $ability = null)
@@ -27,14 +27,16 @@ class AuzoToolsMiddleware
     }
 
     /**
-     * return route name or controller{@}action (Path\Controller{@}method) if route name is not present
+     * return route name or controller{@}action (Path\Controller{@}method) if route name is not present.
      *
      * @param Request $request
+     *
      * @return string
      */
     protected function requestedAbility(Request $request)
     {
         $action_path = explode('\\', $request->route()->getActionName());
+
         return $request->route()->getName() ?: end($action_path);
     }
 }

@@ -16,7 +16,7 @@ class GenerateAbilities
 
     // model fields generated abilities
     public $fields_crud_abilities = [];
-    
+
     public function __construct()
     {
         $this->crud = config('auzoTools.crud');
@@ -24,36 +24,39 @@ class GenerateAbilities
 
     /**
      * Generates an ability for each CRUD element
-     * ex. ClassName.index, ClassName.create, ..etc
+     * ex. ClassName.index, ClassName.create, ..etc.
      *
-     * @param string $delimiter
+     * @param string       $delimiter
      * @param string|Model $name
+     *
      * @return $this
      */
     public function modelAbilities($name, $delimiter = '.')
     {
         $name = is_string($name) ? $name : class_basename($name);
-        
+
         // create the model ability crud
         foreach ($this->crud as $ability) {
             $this->model_crud_abilities[$ability] = strtolower($name.$delimiter.$ability);
         }
+
         return $this;
     }
 
     /**
      * Generates an ability for each field for each model CRUD ability
      * ex. ClassName.create.field1, ClassName.create.field2,
-     *      ClassName.store.field2, ClassName.store.field2, ..etc
+     *      ClassName.store.field2, ClassName.store.field2, ..etc.
      *
      * @param $model
      * @param string $delimiter
-     * @param bool $fillable_only
+     * @param bool   $fillable_only
+     *
      * @return $this
      */
     public function fieldsAbilities($model, $delimiter = '.', $fillable_only = false)
     {
-        if(is_string($model)) {
+        if (is_string($model)) {
             $model = app($model);
         }
         if ($fillable_only) {
@@ -61,10 +64,10 @@ class GenerateAbilities
         } else {
             $columns = Schema::getColumnListing($model->getTable());
         }
-        if (! $this->model_crud_abilities) {
+        if (!$this->model_crud_abilities) {
             $this->modelAbilities($model, $delimiter);
         }
-        
+
         // create columns crud abilities
         foreach ($columns as $column) {
             foreach ($this->model_crud_abilities as $ability => $model_ability) {
@@ -72,24 +75,25 @@ class GenerateAbilities
                     strtolower($model_ability.$delimiter.$column);
             }
         }
-        
+
         return $this;
     }
 
     /**
      * Generates an ability for each element and for fields,
      * ex. ClassName.create, ClassName.create.field1, ClassName.create.field2,
-     *      ClassName.store, ClassName.store.field1, ClassName.store.field2, ..etc
+     *      ClassName.store, ClassName.store.field1, ClassName.store.field2, ..etc.
      *
-     * @param Model $model
-     * @param string $delimiter
-     * @param bool $fillable_only
+     * @param Model       $model
+     * @param string      $delimiter
+     * @param bool        $fillable_only
      * @param null|string $name
+     *
      * @return $this
      */
     public function fullCrudAbilities($model, $delimiter = '.', $fillable_only = false, $name = null)
     {
-        $name = $name ? : $model;
+        $name = $name ?: $model;
 
         return $this->modelAbilities($name, $delimiter)
                     ->fieldsAbilities($model, $delimiter, $fillable_only);
@@ -99,13 +103,13 @@ class GenerateAbilities
     {
         $abilities = [];
         if ($model) {
-            if (! $this->model_crud_abilities) {
+            if (!$this->model_crud_abilities) {
                 throw new \Exception('No model abilities are found!');
             }
             array_push($abilities, $this->model_crud_abilities);
         }
         if ($fields) {
-            if (! $this->fields_crud_abilities) {
+            if (!$this->fields_crud_abilities) {
                 throw new \Exception('No fields abilities are found!');
             }
             array_push($abilities, $this->fields_crud_abilities);
@@ -115,9 +119,8 @@ class GenerateAbilities
         }
         $bytes_written = File::put($file_path, json_encode($abilities));
 
-        if ($bytes_written === false)
-        {
-            throw new \Exception("Error writing to file");
+        if ($bytes_written === false) {
+            throw new \Exception('Error writing to file');
         }
 
         return true;
