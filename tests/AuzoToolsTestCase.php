@@ -5,9 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 
 abstract class AuzoToolsTestCase extends \Orchestra\Testbench\TestCase
 {
-
     protected $gate;
-    
+
     /**
      * The base URL to use while testing the application.
      *
@@ -20,7 +19,8 @@ abstract class AuzoToolsTestCase extends \Orchestra\Testbench\TestCase
     /**
      * Define environment setup.
      *
-     * @param  \Illuminate\Foundation\Application $app
+     * @param \Illuminate\Foundation\Application $app
+     *
      * @throws Exception
      */
     protected function getEnvironmentSetUp($app)

@@ -2,9 +2,9 @@
 
 use Illuminate\Support\Facades\Validator;
 
-class ValidationRulesTest extends AuzoToolsTestCase {
-
-    function test_controller_auzo_can_validation_rule_to_check_user_authorization_per_field()
+class ValidationRulesTest extends AuzoToolsTestCase
+{
+    public function test_controller_auzo_can_validation_rule_to_check_user_authorization_per_field()
     {
         $ability = 'test.ability.someField';
 
@@ -19,7 +19,7 @@ class ValidationRulesTest extends AuzoToolsTestCase {
         $data = ['someField' => 'some input', 'someOtherField' => 'other input'];
 
         $v = Validator::make($data, [
-            'someField' => 'auzo.can:test.ability.someField',
+            'someField'      => 'auzo.can:test.ability.someField',
             'someOtherField' => 'auzo.can:test.ability.someOtherField',
         ]);
 
@@ -34,5 +34,4 @@ class ValidationRulesTest extends AuzoToolsTestCase {
         // assert authorized fields are passed
         $this->assertFalse($v->errors()->has('someField'));
     }
-
 }

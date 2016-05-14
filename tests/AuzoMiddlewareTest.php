@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 
-class AuzoMiddleware extends AuzoToolsTestCase {
-
+class AuzoMiddleware extends AuzoToolsTestCase
+{
     public function test_auzo_middleware_for_authorization_check()
     {
         $ability = 'user-profile';
@@ -16,7 +16,7 @@ class AuzoMiddleware extends AuzoToolsTestCase {
             return $user->id == 1;
         });
 
-        Route::get('user-profile-test', function (){
+        Route::get('user-profile-test', function () {
             return 'hello there';
         })->middleware('auzo.acl:user-profile');
 
@@ -24,12 +24,11 @@ class AuzoMiddleware extends AuzoToolsTestCase {
             ->visit('/user-profile-test')
             ->see('hello there');
 
-        try{
+        try {
             $this->actingAs($user2)->visit('/user-profile-test');
-        }catch (Exception $e){
-            $this->assertContains ("abort(403)",$e->getTraceAsString());
+        } catch (Exception $e) {
+            $this->assertContains('abort(403)', $e->getTraceAsString());
         }
-
     }
 
     public function test_auzo_middleware_uses_route_name_as_ability_name_for_authorization_check()
@@ -43,7 +42,7 @@ class AuzoMiddleware extends AuzoToolsTestCase {
             return $this->profileOwner($user, $model) || $this->siteAdmin($user);
         });
 
-        Route::get('user-profile-test/{id}', function ($id){
+        Route::get('user-profile-test/{id}', function ($id) {
             return "hello there user $id";
         })->name('user.profile.test')->middleware('auzo.acl');
 
@@ -59,29 +58,30 @@ class AuzoMiddleware extends AuzoToolsTestCase {
             ->visit('/user-profile-test/2')
             ->see('hello there user 2');
 
-        try{
+        try {
             $this->actingAs($user2)->visit('/user-profile-test/1');
-        }catch (Exception $e){
-            $this->assertContains("abort(403)", $e->getTraceAsString());
+        } catch (Exception $e) {
+            $this->assertContains('abort(403)', $e->getTraceAsString());
         }
-
     }
 
     /**
-     * Example of condition method to restrict permissions
+     * Example of condition method to restrict permissions.
      *
      * @param $user
      * @param $model
-     * @return bool
+     *
      * @throws \Exception
+     *
+     * @return bool
      */
     public function profileOwner($user, $model)
     {
         $user_model = app('App\User');
 
-        if (! $model instanceof $user_model && ! $model instanceof Request) {
+        if (!$model instanceof $user_model && !$model instanceof Request) {
             // Invalid argument $ticket
-            throw new Exception ("Invalid argument! no valid user instance found in $model");
+            throw new Exception("Invalid argument! no valid user instance found in $model");
         }
         // where $model = Request $request passed by the middleware
         if ($model instanceof Request) {
@@ -92,14 +92,14 @@ class AuzoMiddleware extends AuzoToolsTestCase {
     }
 
     /**
-     * Example of condition method to restrict permissions
+     * Example of condition method to restrict permissions.
      *
      * @param $user
+     *
      * @return bool
      */
     public function siteAdmin($user)
     {
         return $user->id == 1;
     }
-
 }

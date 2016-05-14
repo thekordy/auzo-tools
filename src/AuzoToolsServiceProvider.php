@@ -3,9 +3,9 @@
 namespace Kordy\AuzoTools;
 
 use Illuminate\Foundation\AliasLoader;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Routing\Router;
 use Kordy\AuzoTools\Facades\GenerateAbilities as GenerateAbilitiesFacade;
 use Kordy\AuzoTools\Services\AuzoToolsMiddleware;
 use Kordy\AuzoTools\Services\GenerateAbilities;
@@ -14,7 +14,7 @@ class AuzoToolsServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap AuzoTools application services.
-     * 
+     *
      * @param Router $router
      */
     public function boot(Router $router)
@@ -61,7 +61,6 @@ class AuzoToolsServiceProvider extends ServiceProvider
     protected function registerModelBindings()
     {
         $this->app->bind('GenerateAbilities', GenerateAbilities::class);
-        
     }
 
     /**
@@ -73,6 +72,5 @@ class AuzoToolsServiceProvider extends ServiceProvider
     {
         $loader = AliasLoader::getInstance();
         $loader->alias('GenerateAbilities', GenerateAbilitiesFacade::class);
-        
     }
 }
