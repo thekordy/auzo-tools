@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-class AuzoMiddleware extends AuzoToolsTestCase
+class AuzoMiddlewareTest extends AuzoToolsTestCase
 {
     public function test_auzo_middleware_for_authorization_check()
     {

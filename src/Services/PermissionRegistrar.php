@@ -21,6 +21,7 @@ class PermissionRegistrar
      * @var string
      */
     protected $cacheKey = 'auzoTools.permissions.cache';
+
     /**
      * @param Gate       $gate
      * @param Repository $cache
@@ -35,6 +36,7 @@ class PermissionRegistrar
      *  Register the abilities.
      *
      * @param array $abilities_permissions
+     *
      * @return bool
      */
     public function registerPermissions(array $abilities_permissions)
@@ -71,20 +73,21 @@ class PermissionRegistrar
             return true;
         } catch (Exception $e) {
             Log::alert('Could not register abilities .. '.$e);
+
             return false;
         }
     }
 
     /**
      * @param array $before_permissions
-     * @return boolean
+     *
+     * @return bool
      */
     private function runGateBefore(array $before_permissions)
     {
         $this->gate->before(function ($user, $ability) use ($before_permissions) {
             $result = true;
             foreach ($before_permissions as $restriction) {
-
                 if (is_array($restriction)) {
                     $policy = reset($restriction);
                     $operator = key($restriction);
@@ -101,13 +104,16 @@ class PermissionRegistrar
                     $result = $result && $policy_method;
                 }
             }
-            if ($result == true) return true;
+            if ($result == true) {
+                return true;
+            }
         });
     }
 
     /**
      * @param array $after_authorization_callbacks
-     * @return boolean
+     *
+     * @return bool
      */
     private function runGateAfter(array $after_authorization_callbacks)
     {
@@ -121,7 +127,8 @@ class PermissionRegistrar
 
     /**
      * @param array $abilities_permissions
-     * @return boolean
+     *
+     * @return bool
      */
     private function runGateDefine(array $abilities_permissions)
     {
@@ -129,7 +136,6 @@ class PermissionRegistrar
             $this->gate->define($ability, function ($user, $model = null) use ($ability, $policies) {
                 $result = true;
                 foreach ($policies as $restriction) {
-
                     if (is_array($restriction)) {
                         $policy = reset($restriction);
                         $operator = key($restriction);
@@ -146,9 +152,9 @@ class PermissionRegistrar
                         $result = $result && $policy_method;
                     }
                 }
+
                 return $result;
             });
         }
-
     }
 }

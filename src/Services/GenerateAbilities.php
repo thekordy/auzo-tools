@@ -50,9 +50,9 @@ class GenerateAbilities
      *
      * @param $model
      * @param string $delimiter
-     * @param bool $fillable_only
-     *
+     * @param bool   $fillable_only
      * @param string $name
+     *
      * @return $this
      */
     public function fieldsAbilities($model, $delimiter = '.', $fillable_only = false, $name = null)
