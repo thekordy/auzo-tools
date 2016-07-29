@@ -9,7 +9,7 @@ class PermissionRegistrarTest extends AuzoToolsTestCase
     public $logs = [];
 
     /**
-     * Test PermissionRegistrar service, where registrar registers abilities restricted by policies
+     * Test PermissionRegistrar service, where registrar registers abilities restricted by policies.
      *
      * @test
      */
@@ -26,23 +26,23 @@ class PermissionRegistrarTest extends AuzoToolsTestCase
         // abilities policies array template
         $abilities_policies = [
             'before' => [
-                'Kordy\AuzoTools\Tests\PermissionRegistrarTest@isAdmin'
+                'Kordy\AuzoTools\Tests\PermissionRegistrarTest@isAdmin',
             ],
             'abilities' => [
 
                 'post.update' => [
                     'Kordy\AuzoTools\Tests\PermissionRegistrarTest@postOwner',
-                    ['or' => 'Kordy\AuzoTools\Tests\PermissionRegistrarTest@isModerator']
+                    ['or' => 'Kordy\AuzoTools\Tests\PermissionRegistrarTest@isModerator'],
                 ],
 
                 'post.destroy' => [
-                    'Kordy\AuzoTools\Tests\PermissionRegistrarTest@isModerator'
+                    'Kordy\AuzoTools\Tests\PermissionRegistrarTest@isModerator',
                 ],
             ],
             // use this to log or monitor authorization given to users
             //  you may not modify the result of the authorization check from an after callback
             'after' => [
-                'Kordy\AuzoTools\Tests\PermissionRegistrarTest@monitor'
+                'Kordy\AuzoTools\Tests\PermissionRegistrarTest@monitor',
             ],
         ];
 
@@ -67,40 +67,46 @@ class PermissionRegistrarTest extends AuzoToolsTestCase
     }
 
     /**
-     * Check if user is admin
+     * Check if user is admin.
      *
      * @param $user
      * @param $ability
+     *
      * @return bool
      */
-    public function isAdmin($user, $ability) {
+    public function isAdmin($user, $ability)
+    {
         return $user->id == 1;
     }
 
     /**
-     * Check if user is moderator
+     * Check if user is moderator.
      *
      * @param $user
      * @param $ability
+     *
      * @return bool
      */
-    public function isModerator($user, $ability) {
+    public function isModerator($user, $ability)
+    {
         return $user->id == 2;
     }
 
     /**
-     * Check if user is post owner
+     * Check if user is post owner.
      *
      * @param $user
      * @param $ability
+     *
      * @return bool
      */
-    public function postOwner($user, $ability, $model) {
+    public function postOwner($user, $ability, $model)
+    {
         return $user->id == 3;
     }
 
     /**
-     * Run authorization monitor, see storage/logs/laravel.log
+     * Run authorization monitor, see storage/logs/laravel.log.
      *
      * @param $user
      * @param $ability
@@ -108,9 +114,9 @@ class PermissionRegistrarTest extends AuzoToolsTestCase
     public function monitor($user, $ability, $result, $arguments = null)
     {
         if ($result) {
-            \Log::info("Authorization Log: User $user->name ($user->email) is granted access to ability $ability at " . date('d-m-Y H:j'));
+            \Log::info("Authorization Log: User $user->name ($user->email) is granted access to ability $ability at ".date('d-m-Y H:j'));
         } else {
-            \Log::info("Authorization Log: User $user->name ($user->email) is forbidden to access ability $ability at " . date('d-m-Y H:j'));
+            \Log::info("Authorization Log: User $user->name ($user->email) is forbidden to access ability $ability at ".date('d-m-Y H:j'));
         }
     }
 }
