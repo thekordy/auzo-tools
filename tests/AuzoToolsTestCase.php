@@ -1,10 +1,28 @@
 <?php
 
-use Illuminate\Contracts\Auth\Access\Gate;
-use Illuminate\Database\Schema\Blueprint;
+namespace Kordy\AuzoTools\Tests;
 
-abstract class AuzoToolsTestCase extends \Orchestra\Testbench\TestCase
+use Exception;
+use Faker\Factory;
+use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
+use Illuminate\Contracts\Auth\Access\Authorizable;
+use Illuminate\Contracts\Auth\Access\Gate;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Auth\Access\Authorizable as AuthorizableTrait;
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\TestCase;
+use Illuminate\Support\Str;
+use Kordy\AuzoTools\AuzoToolsServiceProvider;
+use Kordy\AuzoTools\Traits\ModelFieldsPolicy;
+
+abstract class AuzoToolsTestCase extends TestCase
 {
+    use DatabaseMigrations;
+
     protected $gate;
 
     /**
@@ -17,58 +35,80 @@ abstract class AuzoToolsTestCase extends \Orchestra\Testbench\TestCase
     protected $userClass;
 
     /**
-     * Define environment setup.
-     *
-     * @param \Illuminate\Foundation\Application $app
+     * Creates the application.
      *
      * @throws Exception
+     *
+     * @return Application
      */
-    protected function getEnvironmentSetUp($app)
+    public function createApplication()
     {
-        // Setup default database to use sqlite :memory:
-        $app['config']->set('database.default', 'testbench');
-        $app['config']->set('database.connections.testbench', [
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => '',
-        ]);
+        // $app = require __DIR__.'/../vendor/laravel/laravel/bootstrap/app.php';
+        $app = require __DIR__.'/../../../../bootstrap/app.php';
+
+        $this->setEnv();
+
+        $app->make(Kernel::class)->bootstrap();
+
+        // Run test migrations in the testing environment on sqlite on memory
+        $app['config']->set('database.default', 'sqlite');
+        $app['config']->set('database.connections.sqlite.database', ':memory:');
+
+        // Use a specific User model, so we can include traits when running tests
+        $laravel_version = substr($app::VERSION, 0, 3);
+
+        switch ($laravel_version) {
+            case '5.1':
+                $app['config']->set('auth.model', TestUserL51::class); //Laravel 5.1
+                $this->userClass = app(TestUserL51::class);
+                break;
+            case '5.2':
+                $app['config']->set('auth.providers.users.model', TestUserL52::class); //Laravel 5.2
+                $this->userClass = app(TestUserL52::class);
+                break;
+            default:
+                throw new Exception('This package supports only Laravel 5.1 and 5.2');
+        }
+
+        $app->register(AuzoToolsServiceProvider::class);
+
+        return $app;
     }
 
     public function setUp()
     {
         parent::setUp();
 
-        // Create users table
-        Illuminate\Support\Facades\Schema::create('users', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password', 60);
-            $table->rememberToken();
-            $table->timestamps();
-        });
+        // Run fresh migrations before every test
+        $this->artisan('migrate');
 
-        $this->userClass = 'TestUser';
-
-        $this->withFactories(__DIR__.'/factories');
+        $this->faker = $faker = Factory::create();
 
         $this->gate = app(Gate::class);
     }
 
-    protected function getPackageProviders($app)
+    /**
+     * Set environment values. These usually go to .env file.
+     */
+    protected function setEnv()
     {
-        return ['Kordy\AuzoTools\AuzoToolsServiceProvider'];
+        putenv('APP_KEY='.Str::random(32));
+
+        putenv('APP_ENV=testing');
+        putenv('CACHE_DRIVER=array');
+        putenv('SESSION_DRIVER=array');
+        putenv('QUEUE_DRIVER=sync');
     }
 }
 
-$laravel_version = substr(Illuminate\Foundation\Application::VERSION, 0, 3);
+$laravel_version = substr(Application::VERSION, 0, 3);
 /*
  * Copy of Laravel 5.2's default App\User
  */
 if ($laravel_version == '5.2') {
-    class TestUser extends \Illuminate\Foundation\Auth\User
+    class TestUserL52 extends User
     {
-        use \Kordy\AuzoTools\Traits\ModelFieldsPolicy;
+        use ModelFieldsPolicy;
 
         protected $table = 'users';
         /**
@@ -97,10 +137,10 @@ if ($laravel_version == '5.2') {
  * without CanResetPassword trait
  */
 if ($laravel_version == '5.1') {
-    class TestUser extends Illuminate\Database\Eloquent\Model implements Illuminate\Contracts\Auth\Authenticatable, Illuminate\Contracts\Auth\Access\Authorizable
+    class TestUserL51 extends Model implements Authenticatable, Authorizable
     {
-        use Illuminate\Auth\Authenticatable, Illuminate\Foundation\Auth\Access\Authorizable;
-        use \Kordy\AuzoTools\Traits\ModelFieldsPolicy;
+        use AuthenticatableTrait, AuthorizableTrait, ModelFieldsPolicy;
+
         /**
          * The database table used by the model.
          *
@@ -121,5 +161,3 @@ if ($laravel_version == '5.1') {
         protected $hidden = ['password', 'remember_token'];
     }
 }
-
-class_alias('TestUser', 'App\User');

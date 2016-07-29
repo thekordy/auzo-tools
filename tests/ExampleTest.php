@@ -1,5 +1,9 @@
 <?php
 
+namespace Kordy\AuzoTools\Tests;
+
+use App\User;
+
 class ExampleTest extends AuzoToolsTestCase
 {
     /**
@@ -9,7 +13,7 @@ class ExampleTest extends AuzoToolsTestCase
      */
     public function user_class_exists()
     {
-        $user = new App\User();
+        $user = new User();
         $user2 = new $this->userClass();
     }
 }

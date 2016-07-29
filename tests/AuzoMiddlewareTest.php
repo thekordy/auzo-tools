@@ -1,6 +1,10 @@
 <?php
 
+namespace Kordy\AuzoTools\Tests;
+
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 class AuzoMiddleware extends AuzoToolsTestCase
 {
@@ -27,7 +31,7 @@ class AuzoMiddleware extends AuzoToolsTestCase
         try {
             $this->actingAs($user2)->visit('/user-profile-test');
         } catch (Exception $e) {
-            $this->assertContains('abort(403)', $e->getTraceAsString());
+            $this->assertContains('403', $e->getMessage());
         }
     }
 
@@ -61,7 +65,7 @@ class AuzoMiddleware extends AuzoToolsTestCase
         try {
             $this->actingAs($user2)->visit('/user-profile-test/1');
         } catch (Exception $e) {
-            $this->assertContains('abort(403)', $e->getTraceAsString());
+            $this->assertContains('403', $e->getMessage());
         }
     }
 

@@ -50,11 +50,12 @@ class GenerateAbilities
      *
      * @param $model
      * @param string $delimiter
-     * @param bool   $fillable_only
+     * @param bool $fillable_only
      *
+     * @param string $name
      * @return $this
      */
-    public function fieldsAbilities($model, $delimiter = '.', $fillable_only = false)
+    public function fieldsAbilities($model, $delimiter = '.', $fillable_only = false, $name = null)
     {
         if (is_string($model)) {
             $model = app($model);
@@ -65,7 +66,8 @@ class GenerateAbilities
             $columns = Schema::getColumnListing($model->getTable());
         }
         if (!$this->model_crud_abilities) {
-            $this->modelAbilities($model, $delimiter);
+            $name = $name ?: class_basename($model);
+            $this->modelAbilities($name, $delimiter);
         }
 
         // create columns crud abilities

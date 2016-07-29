@@ -28,6 +28,7 @@
   },
   "autoload": {
     "psr-4": {
+      "Kordy\\AuzoTools\\Tests\\": "tests/",
       "Kordy\\AuzoTools\\": "src/"
     }
   }

@@ -1,5 +1,10 @@
 <?php
 
+namespace Kordy\AuzoTools\Tests;
+
+use File;
+use GenerateAbilities;
+
 class GenerateAbilitiesTest extends AuzoToolsTestCase
 {
     private $expected_fields_abilities = [
@@ -107,7 +112,7 @@ class GenerateAbilitiesTest extends AuzoToolsTestCase
     {
         $model = $this->userClass;
 
-        $generator = GenerateAbilities::fieldsAbilities($model);
+        $generator = GenerateAbilities::fieldsAbilities($model, '.', false, 'testuser');
 
         $this->assertEquals($generator->fields_crud_abilities, $this->expected_fields_abilities);
     }
@@ -116,7 +121,7 @@ class GenerateAbilitiesTest extends AuzoToolsTestCase
     {
         $model = $this->userClass;
 
-        $generator = GenerateAbilities::fullCrudAbilities($model);
+        $generator = GenerateAbilities::fullCrudAbilities($model, '.', false, 'testuser');
 
         $this->assertEquals($generator->model_crud_abilities, $this->expected_model_abilities);
         $this->assertEquals($generator->fields_crud_abilities, $this->expected_fields_abilities);
@@ -136,7 +141,7 @@ class GenerateAbilitiesTest extends AuzoToolsTestCase
         $generator = GenerateAbilities::fullCrudAbilities($model, '-', true, 'someName');
 
         // assert only fillable fields are generated
-        $this->assertEquals(app($model)->getFillable(), array_keys($generator->fields_crud_abilities));
+        $this->assertEquals($model->getFillable(), array_keys($generator->fields_crud_abilities));
         // assert generated fields abilities has same custom name and delimiter
         $this->assertEquals($generator->fields_crud_abilities['name']['index'], 'somename-index-name');
     }
@@ -146,12 +151,12 @@ class GenerateAbilitiesTest extends AuzoToolsTestCase
         $model = $this->userClass;
         $file_path = 'tests/tmp_generated_abilities.json';
 
-        GenerateAbilities::fullCrudAbilities($model)->writeToFile($file_path);
+        GenerateAbilities::fullCrudAbilities($model, '.', false, 'testuser')->writeToFile($file_path);
 
-        $generated_abilities = json_decode(\File::get($file_path));
+        $generated_abilities = json_decode(File::get($file_path));
 
         $this->assertEquals($this->flatten_full_model_fields_crud_abilities, $generated_abilities);
 
-        \File::delete($file_path);
+        File::delete($file_path);
     }
 }
