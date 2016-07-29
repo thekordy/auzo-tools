@@ -1,7 +1,7 @@
 {
   "name": "kordy/auzo-tools",
   "type": "package",
-  "version": "v1.1",
+  "version": "v1.1.0",
   "description": "Helper functions that makes it very easy to manage models and their fields abilities.",
   "keywords": ["Laravel", "authorize", "acl", "validation", "middleware"],
   "license": "MIT",
