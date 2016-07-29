@@ -6,6 +6,7 @@ use Illuminate\Foundation\AliasLoader;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Kordy\AuzoTools\Facades\AuzoToolsPermissionRegistrarFacade;
 use Kordy\AuzoTools\Facades\GenerateAbilities as GenerateAbilitiesFacade;
 use Kordy\AuzoTools\Services\AuzoToolsMiddleware;
 use Kordy\AuzoTools\Services\GenerateAbilities;
@@ -60,6 +61,7 @@ class AuzoToolsServiceProvider extends ServiceProvider
      */
     protected function registerModelBindings()
     {
+        $this->app->bind('AuzoToolsPermissionRegistrar', config('auzoTools.registrar'));
         $this->app->bind('GenerateAbilities', GenerateAbilities::class);
     }
 
@@ -71,6 +73,7 @@ class AuzoToolsServiceProvider extends ServiceProvider
     protected function registerFacadesAliases()
     {
         $loader = AliasLoader::getInstance();
+        $loader->alias('AuzoToolsPermissionRegistrar', AuzoToolsPermissionRegistrarFacade::class);
         $loader->alias('GenerateAbilities', GenerateAbilitiesFacade::class);
     }
 }
