@@ -1,4 +1,4 @@
-This package is a set of tools for Laravel 5.1 and 5.2 to facilitate authorize management for your Laravel project or package. You can use AuzoTools to manage authorization in your project, or to provide configurable authorization option for your package users.
+This package is a set of tools for Laravel 5.1, 5.2, and 5.3 to facilitate authorize management for your Laravel project or package. You can use AuzoTools to manage authorization in your project, or to provide configurable authorization option for your package users.
 
 ## Tools included:
 1. [Manage Laravel authorization.](#manage-laravel-authorization)
@@ -44,6 +44,49 @@ You can use AuzoTools to manage authorization in your project, or to provide con
 Parameter functions can act as policies, so when AuzoTools is evaluating a user access to a resource/model record, it will pass these information to the function you specified as a parameter, your function will evaluate user information against the resource they want to access, then return a boolean decision to allow the user access or not.
 
 See an example at the [test file](https://github.com/thekordy/auzo-tools/blob/master/tests/PermissionRegistrarTest.php)
+
+### You have two ways to define policies, either callbacks or a dedicated class methods. ###
+
+#### 1. Callbacks policies ####
+
+Create config file as this one:
+
+```php
+// config/acl.php
+
+return [
+    'before' => [
+        function($user, $ability) {
+            return $user->id == 1;
+        }
+    ],
+    'abilities' => [
+
+        'post.update' => [
+            function($user, $ability, $model) { return $user->id == 3; },
+            ['or' => function ($user, $ability, $model) { return $user->id == 2; }],
+        ],
+
+        'post.destroy' => [
+            function ($user, $ability, $model) { return $user->id == 2; },
+        ],
+    ],
+    // use this to log or monitor authorization given to users
+    //  you may not modify the result of the authorization check from an after callback
+    'after' => [
+        function ($user, $ability, $result, $arguments = null)
+        {
+            if ($result) {
+                \Log::info("Authorization Log: User $user->name ($user->email) is granted access to ability $ability at ".date('d-m-Y H:j'));
+            } else {
+                \Log::info("Authorization Log: User $user->name ($user->email) is forbidden to access ability $ability at ".date('d-m-Y H:j'));
+            }
+        },
+    ],
+];
+```
+
+#### 2. Dedicated class methods ####
 
 Create config file as this one:
 
@@ -140,6 +183,8 @@ class MyPolicyClass
     }
 }
 ```
+
+### Finally: ###
 
 Load Abilities to Laravel Gate at boot by runing the `\AuzoToolsPermissionRegistrar::registerPermissions($abilities_policies)` in your service provider 
 ```php

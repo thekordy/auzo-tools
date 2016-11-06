@@ -96,12 +96,17 @@ class PermissionRegistrar
                     $operator = 'and';
                 }
 
-                list($class, $method) = explode('@', $policy);
-                $policy_method = app($class)->$method($user, $ability); // should return boolean
-                if ($operator === 'or' || $operator === '||') {
-                    $result = $result || $policy_method;
+                if (is_callable($policy)) {
+                    $policy_method_return = call_user_func($policy, $user, $ability);
                 } else {
-                    $result = $result && $policy_method;
+                    list($class, $method) = explode('@', $policy);
+                    $policy_method_return = app($class)->$method($user, $ability); // should return boolean
+                }
+
+                if ($operator === 'or' || $operator === '||') {
+                    $result = $result || $policy_method_return;
+                } else {
+                    $result = $result && $policy_method_return;
                 }
             }
             if ($result == true) {
@@ -119,8 +124,13 @@ class PermissionRegistrar
     {
         $this->gate->after(function ($user, $ability, $result, $arguments = null) use ($after_authorization_callbacks) {
             foreach ($after_authorization_callbacks as $callback) {
-                list($class, $method) = explode('@', $callback);
-                app($class)->$method($user, $ability, $result, $arguments);
+
+                if (is_callable($callback)) {
+                    call_user_func($callback, $user, $ability, $result, $arguments);
+                } else {
+                    list($class, $method) = explode('@', $callback);
+                    app($class)->$method($user, $ability, $result, $arguments); // should return boolean
+                }
             }
         });
     }
@@ -144,12 +154,17 @@ class PermissionRegistrar
                         $operator = 'and';
                     }
 
-                    list($class, $method) = explode('@', $policy);
-                    $policy_method = app($class)->$method($user, $ability, $model); // should return boolean
-                    if ($operator === 'or' || $operator === '||') {
-                        $result = $result || $policy_method;
+                    if (is_callable($policy)) {
+                        $policy_method_return = call_user_func($policy, $user, $ability, $model);
                     } else {
-                        $result = $result && $policy_method;
+                        list($class, $method) = explode('@', $policy);
+                        $policy_method_return = app($class)->$method($user, $ability, $model); // should return boolean
+                    }
+
+                    if ($operator === 'or' || $operator === '||') {
+                        $result = $result || $policy_method_return;
+                    } else {
+                        $result = $result && $policy_method_return;
                     }
                 }
 
