@@ -1,10 +1,5 @@
 <?php
 
-namespace Kordy\AuzoTools\Tests;
-
-use File;
-use GenerateAbilities;
-
 class GenerateAbilitiesTest extends AuzoToolsTestCase
 {
     private $expected_fields_abilities = [

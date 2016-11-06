@@ -1,8 +1,5 @@
 <?php
 
-namespace Kordy\AuzoTools\Tests;
-
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

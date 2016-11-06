@@ -1,23 +1,22 @@
 <?php
 
-namespace Kordy\AuzoTools\Tests;
-
-use Exception;
+use App\User;
 use Faker\Factory;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
+use Illuminate\Foundation\Auth\Access\Authorizable as AuthorizableTrait;
 use Illuminate\Contracts\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Auth\Access\Authorizable as AuthorizableTrait;
-use Illuminate\Foundation\Auth\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use Kordy\AuzoTools\AuzoToolsServiceProvider;
 use Kordy\AuzoTools\Traits\ModelFieldsPolicy;
+
 
 abstract class AuzoToolsTestCase extends TestCase
 {
@@ -54,20 +53,14 @@ abstract class AuzoToolsTestCase extends TestCase
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite.database', ':memory:');
 
-        // Use a specific User model, so we can include traits when running tests
-        $laravel_version = substr($app::VERSION, 0, 3);
-
-        switch ($laravel_version) {
-            case '5.1':
-                $app['config']->set('auth.model', TestUserL51::class); //Laravel 5.1
-                $this->userClass = app(TestUserL51::class);
-                break;
-            case '5.2':
-                $app['config']->set('auth.providers.users.model', TestUserL52::class); //Laravel 5.2
-                $this->userClass = app(TestUserL52::class);
-                break;
-            default:
-                throw new Exception('This package supports only Laravel 5.1 and 5.2');
+        if (version_compare($app::VERSION, '5.2', '<')) {
+            // This is Laravel 5.1 or earlier
+            $app['config']->set('auth.model', TestUserL51::class);
+            $this->userClass = app(TestUserL51::class);
+        } else {
+            // Laravel version 5.2+
+            $app['config']->set('auth.providers.users.model', TestUserL52::class);
+            $this->userClass = app(TestUserL52::class);
         }
 
         $app->register(AuzoToolsServiceProvider::class);
@@ -101,11 +94,11 @@ abstract class AuzoToolsTestCase extends TestCase
     }
 }
 
-$laravel_version = substr(Application::VERSION, 0, 3);
+$version = Application::VERSION;
 /*
  * Copy of Laravel 5.2's default App\User
  */
-if ($laravel_version == '5.2') {
+if (version_compare($version, '5.2', '>=')) {
     class TestUserL52 extends User
     {
         use ModelFieldsPolicy;
@@ -136,7 +129,7 @@ if ($laravel_version == '5.2') {
  * Copy of Laravel 5.1's default App\User
  * without CanResetPassword trait
  */
-if ($laravel_version == '5.1') {
+if (version_compare($version, '5.2', '<')) {
     class TestUserL51 extends Model implements Authenticatable, Authorizable
     {
         use AuthenticatableTrait, AuthorizableTrait, ModelFieldsPolicy;

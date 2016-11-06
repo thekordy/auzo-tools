@@ -1,7 +1,5 @@
 <?php
 
-namespace Kordy\AuzoTools\Tests;
-
 use Illuminate\Support\Facades\Validator;
 
 class ValidationRulesTest extends AuzoToolsTestCase

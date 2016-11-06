@@ -1,7 +1,5 @@
 <?php
 
-namespace Kordy\AuzoTools\Tests;
-
 use App\User;
 
 class ExampleTest extends AuzoToolsTestCase

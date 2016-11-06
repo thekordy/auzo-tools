@@ -1,7 +1,5 @@
 <?php
 
-namespace Kordy\AuzoTools\Tests;
-
 class FieldsPolicyTest extends AuzoToolsTestCase
 {
     public function test_hide_model_collection_fields_by_policy()
